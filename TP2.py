@@ -5,7 +5,7 @@ BaseConocimientos=[]
 
 
 global Lexico
-Lexico = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']']
+Lexico = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']','-',':']
 
 
 #### Menu de Inicio ####################################################################
@@ -72,7 +72,7 @@ def IngresarHecho_Aux():
 
 def ScannerHecho(hecho):
 	for caracter in hecho:
-		if caracter in Lexico:
+		if caracter in Lexico[:-2]:
 			True
 		else:
 			print("Error de scanner: "+caracter+" no es token valido")
@@ -82,7 +82,32 @@ def ScannerHecho(hecho):
 
 #### Ingresar Regla ###################################################################  
 def IngresarRegla():
-	print("Ingresar Regla")
+	print
+	print("      Ingresar Reglas")
+	print("*Una Regla debe terminar con un punto(.) al final")
+	print("*Una Regla puede tener 0 a N argumentos")
+	print("Ejemplo:  perro(bruno).      amigo(daniel,felipe).")
+	print
+	return IngresarRegla_Aux()
+
+def IngresarRegla_Aux():
+	regla=raw_input(": ")
+	ScannerRegla(regla)
+	BaseConocimientos.append(regla)
+	opcion=input("regla ingresada, 1 para agregar nueva regla, 2 para volver al menu: ")
+	if opcion==1:
+	    return IngresarRegla_Aux()
+	else:
+	    print
+	    return MenuAdministrativo()
+
+def ScannerRegla(regla):
+	for caracter in regla:
+		if caracter in Lexico:
+			True
+		else:
+			print("Error de scanner: "+caracter+" no es token valido")
+			return
 
 
 #### Mostrar Hechos ###################################################################
