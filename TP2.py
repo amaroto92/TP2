@@ -3,18 +3,10 @@ print("        Lenguaje de Programacion PROLOG")
 global BaseConocimientos
 BaseConocimientos=[]
 
-global Sintaxis
-Sintaxis = {
-	('Constante', 'constante'),
-	('Variable', 'variable'),
-	('Coma', ','),
-	('Parentesis', '('),
-	('Parentesis', ')'),
-	('Punto', '.'),	
-	}
 
-global Alfabeto
-Alfabeto=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+global Lexico
+Lexico = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']']
+
 
 #### Menu de Inicio ####################################################################
 def MenuInicio():
@@ -79,11 +71,12 @@ def IngresarHecho_Aux():
 	    return MenuAdministrativo()
 
 def ScannerHecho(hecho):
-	tokens = list(hecho)
-
-	print("tokens: ")
-	print(tokens)
-
+	for caracter in hecho:
+		if caracter in Lexico:
+			True
+		else:
+			print("Error de scanner: "+caracter+" no es token valido")
+			return
     
     
 
