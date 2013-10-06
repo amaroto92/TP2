@@ -1,7 +1,7 @@
-print("        Lenguaje de Programacion PROLOG")
+print(" Lenguaje de Programacion PROLOG")
 
 global BaseConocimientos
-BaseConocimientos=[]
+BaseConocimientos=['nl','fail','write(args)'] #Lista que contiene la BC y le agregamos los built-in predicates.
 
 
 global Lexico
@@ -17,16 +17,16 @@ def MenuInicio():
 	opcion=input("Cual opcion desea hacer? : ")
 	print
 	if opcion==1:
-	    print 
-	    return MenuAdministrativo()
+		print
+		return MenuAdministrativo()
 	elif opcion==2:
-	    print 
-	    print ("CONSULTAS NO ESTA HECHO TODAVIA")
-	    return MenuInicio()
+		print
+		print ("CONSULTAS NO ESTA HECHO TODAVIA")
+		return MenuInicio()
 	else:
-	    print ("Valor ingresado es invalido, por favor elija una opcion")
-	    print 
-	    return MenuInicio()
+		print ("Valor ingresado es invalido, por favor elija 			una opcion")
+		print
+		return MenuInicio()
 
 #### Menu Administrativo ####################################################################
 def MenuAdministrativo():
@@ -37,90 +37,117 @@ def MenuAdministrativo():
 	print("4) Regresar a Menu Principal")
 	opcion=input("Que desea hacer? : ")
 	if opcion==1:
-	    return IngresarHecho()
+		return IngresarHecho()
 	elif opcion==2:
-	    return IngresarRegla()
+		return IngresarRegla()
 	elif opcion==3:
-	    return MostrarBaseConocimiento()
+		return MostrarBaseConocimiento()
 	elif opcion==4:
-	    return MenuInicio()
+		return MenuInicio()
 	else:
-	    print ("Valor ingresado es invalido, por favor elija una opcion")
-	    print 
-	    return MenuAdministrativo()
+		print ("Valor ingresado es invalido, por favor elija una opcion")
+		print
+		return MenuAdministrativo()
 
-#### Ingresar Hechos ####################################################################   
+#### Ingresar Hechos ####################################################################
 def IngresarHecho():
 	print
-	print("      Ingresar Hechos")
+	print(" Ingresar Hechos")
 	print("*Un hecho debe terminar con un punto(.) al final")
 	print("*Un hecho puede tener 0 a N argumentos")
-	print("Ejemplo:  perro(bruno).      amigo(daniel,felipe).")
+	print("Ejemplo: perro(bruno). amigo(daniel,felipe).")
 	print
 	return IngresarHecho_Aux()
 
 def IngresarHecho_Aux():
 	hecho=raw_input(": ")
-	ScannerHecho(hecho)
-	BaseConocimientos.append(hecho)
-	opcion=input("hecho ingresado, 1 para agregar nuevo hecho, 2 para volver al menu: ")
-	if opcion==1:
-	    return IngresarHecho_Aux()
+	if ScannerHecho(hecho) and ParserHecho(hecho): #Si pasa las etapas de Scanner y Parser correctamente, agrega el hecho a la BC.
+
+		BaseConocimientos.append(hecho) #append lo agrega al final de 							la lista.
+		print("Hecho ingresado")
+		opcion=input("hecho ingresado, presione 1 para agregar nuevo hecho y 2 para volver al menu: ")
+		if opcion==1:
+			return IngresarHecho_Aux()
+		else:
+			print
+			return MenuAdministrativo()
 	else:
-	    print
-	    return MenuAdministrativo()
+		print("Error al ingresar hecho a la Base de Conocimiento") 
+		#No se agrega nada.
+		opcion=input("presione 1 para agregar nuevo hecho y 2 para volver al menu: ")
+		if opcion==1:
+			return IngresarHecho_Aux()
+		else:
+			print
+			return MenuAdministrativo()
+		
 
 def ScannerHecho(hecho):
 	for caracter in hecho:
 		if caracter in Lexico[:-2]:
 			True
 		else:
-			print("Error de scanner: "+caracter+" no es token valido")
-			return
-    
+			print("Error de scanner: "+caracter+" no es token 				valido")
+			return False
+	return True
+	
     
 
-#### Ingresar Regla ###################################################################  
-def IngresarRegla():
-	print
-	print("      Ingresar Reglas")
-	print("*Una Regla debe terminar con un punto(.) al final")
-	print("*Una Regla puede tener 0 a N argumentos")
-	print("Ejemplo:  perro(bruno).      amigo(daniel,felipe).")
-	print
-	return IngresarRegla_Aux()
-
-def IngresarRegla_Aux():
-	regla=raw_input(": ")
-	ScannerRegla(regla)
-	BaseConocimientos.append(regla)
-	opcion=input("regla ingresada, 1 para agregar nueva regla, 2 para volver al menu: ")
-	if opcion==1:
-	    return IngresarRegla_Aux()
+def ParserHecho(hecho):
+	print(hecho)
+	banderaparentisis = False
+	if hecho[-1] != '.': #Que termine con punto.
+		print("Un hecho tiene que terminar con punto")
+		return False
 	else:
-	    print
-	    return MenuAdministrativo()
+	
+		for i in range(0,len(hecho)):
+		
+			print (hecho[i])
 
-def ScannerRegla(regla):
-	for caracter in regla:
-		if caracter in Lexico:
-			True
-		else:
-			print("Error de scanner: "+caracter+" no es token valido")
-			return
+			if i==0 and (hecho[i].islower() == False): # Que 				empieze con minuscula.
+				print("Un hecho tiene que empezar con 					Mayuscula")
+				return False
+		
+			elif hecho[i] == '(' :
+				banderaparentisis = True #Bandera para saber 					que tiene parentesis, este se tiene que cerrar 					y tiene que haber un alfa numerico despues del 					parentesis abierto.
+				if hecho[i+1].isalnum() == False:
+					print("Error despues del ( ")
+					return False
+				elif banderaparentisis == True:
+					if hecho[-2] !=')':
+						print("No se cerro parentesis")
+						return False
+
+			elif hecho[i] == ',':
+				if hecho[i+1].isalnum() ==False:
+				#Despues de una coma tiene que haber un alfa 					numerico.
+					print("Error despues de la ,")
+					return False
+			
+		return True #Paso todas las pruebas del Parser correctamente.
+
+			 
+				
+		
+			
+
+#### Ingresar Regla ###################################################################
+def IngresarRegla():
+	print("Ingresar Regla")
 
 
 #### Mostrar Hechos ###################################################################
 def MostrarBaseConocimiento():
 	print
-	print("       Base de Conocimientos")
+	print("Base de Conocimientos")
 	print
 	for i in range(0,len(BaseConocimientos)):
-	    print(BaseConocimientos[i])
+		print(BaseConocimientos[i])
 	print
 	return MenuAdministrativo()
 
-#### Consultas #########################################################################   
+#### Consultas #########################################################################
 def Consultas():
 	print("Consultas")
 
