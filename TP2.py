@@ -7,7 +7,6 @@ BaseConocimientos=['nl','fail','write(args)'] #Lista que contiene la BC y le agr
 global Lexico
 Lexico = ['_','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']','-',':']
 
-
 #### Menu de Inicio ####################################################################
 def MenuInicio():
 	print("Menu de opciones:")
@@ -182,6 +181,8 @@ def ScannerRegla(regla):
 
 def ParserRegla(regla):
 	
+	banderadospuntos = False
+	
 	if regla[-1] != '.': #Verificamos que termine con punto.
 		print("Una regla tiene que terminar con punto")
 		return False
@@ -193,6 +194,7 @@ def ParserRegla(regla):
 			
 		
 			if regla[i] == ':':
+				banderadospuntos=True
 				cuerporegla=regla[i+2:].split(",") #En una variable cuerporegla vamos a tener todos los hechos del cuerpo en una lista, los hechos estan separados por "," asi los divide"
 				
 				#print (regla[:i]+'.')
@@ -202,13 +204,17 @@ def ParserRegla(regla):
 					 True
 				else:
 					return False
-		
-		for hecho in cuerporegla: #Ciclo para recorrer la lista que contiene el cuerpo de la regla.
+		if banderadospuntos==False:
+			print("No tiene los dos puntos :" )
+			return False
+		else:
 
-			#print("Hecho +. "+ hecho +" .")
-			if ParserHecho(hecho+".") == False: #Verificamos que cada hecho que esta en el cuerpo sea un hecho valido.
-				return False
-		return True	
+			for hecho in cuerporegla: #Ciclo para recorrer la lista que contiene el cuerpo de la regla.
+
+				#print("Hecho +. "+ hecho +" .")
+				if ParserHecho(hecho+".") == False: #Verificamos que cada hecho que esta en el cuerpo sea un hecho valido.
+					return False
+			return True	
 
 			
 
