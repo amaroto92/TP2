@@ -5,7 +5,7 @@ BaseConocimientos=['nl','fail','write(args)'] #Lista que contiene la BC y le agr
 
 
 global Lexico
-Lexico = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']','-',':','_']
+Lexico = ['_','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',',','.','(',')','[',']','-',':']
 
 
 #### Menu de Inicio ####################################################################
@@ -88,7 +88,7 @@ def ScannerHecho(hecho):
 		if caracter.lower() in Lexico[:-2]:
 			True
 		else:
-			print("Error de scanner: "+caracter+" no es token 				valido")
+			print("Error de scanner: "+caracter+" no es token valido")
 			return False
 	return True
 	
@@ -104,15 +104,15 @@ def ParserHecho(hecho):
 	
 		for i in range(0,len(hecho)):
 		
-			print (hecho[i])
+			#print (hecho[i])
 
-			if i==0 and (hecho[i].islower() == False): # Que 				empieze con minuscula.
+			if i==0 and (hecho[i].islower() == False): # Que empieze con minuscula.
 				print("Un hecho tiene que empezar con Minuscula")
 				return False
 		
 			elif hecho[i] == '(' :
-				banderaparentisis = True #Bandera para saber 					que tiene parentesis, este se tiene que cerrar 					y tiene que haber un alfa numerico despues del 					parentesis abierto.
-				if hecho[i+1].isalnum() == False:
+				banderaparentisis = True #Bandera para saber que tiene parentesis, este se tiene que cerrar 					y tiene que haber un alfa numerico despues del parentesis abierto.
+				if ((hecho[i+1].isalnum() == False) and (hecho[i+1] != "_")):
 					print("Error despues del ( ")
 					return False
 				elif banderaparentisis == True:
@@ -121,7 +121,7 @@ def ParserHecho(hecho):
 						return False
 
 			elif hecho[i] == ',':
-				if hecho[i+1].isalnum() ==False:
+				if ((hecho[i+1].isalnum() == False) and (hecho[i+1] != "_")):
 				#Despues de una coma tiene que haber un alfa 					numerico.
 					print("Error despues de la ,")
 					return False
@@ -140,7 +140,7 @@ def IngresarRegla():
 	print("*Una Regla debe terminar con un punto(.) al final")
 	print("*Una Regla puede tener 0 a N argumentos")
 	print("*Toda Regla puede tener N antecedentes")
-	print("Ejemplo: amigo(daniel,felipe).")
+	print("Ejemplo: animal(X):-perro(X),estavivo(X).")
 	print
 	return IngresarRegla_Aux()
 
@@ -149,7 +149,7 @@ def IngresarRegla_Aux():
 	if ScannerRegla(regla) and ParserRegla(regla): #Si pasa las etapas de Scanner y Parser correctamente, agrega el hecho a la BC.
 
 		BaseConocimientos.append(regla) #append lo agrega al final de 							la lista.
-		print("Regla ingresado")
+		print("Regla ingresada")
 		opcion=input("Regla ingresada, presione 1 para agregar nueva regla y 2 para volver al menu: ")
 		if opcion==1:
 			return IngresarRegla_Aux()
@@ -165,7 +165,7 @@ def IngresarRegla_Aux():
 		else:
 			print
 			return MenuAdministrativo()
-		
+
 
 # Funcion para validar el lexico de la regla
 def ScannerRegla(regla):
@@ -181,8 +181,36 @@ def ScannerRegla(regla):
 # Funcion para validar la sintaxis de la regla
 
 def ParserRegla(regla):
+	
+	if regla[-1] != '.': #Verificamos que termine con punto.
+		print("Una regla tiene que terminar con punto")
+		return False
+	
+	else:
+		regla = regla[:-1] #le quitamos el punto del final a la regla.
+		
+		for i in range(0,len(regla)):
+			
+		
+			if regla[i] == ':':
+				cuerporegla=regla[i+2:].split(",") #En una variable cuerporegla vamos a tener todos los hechos del cuerpo en una lista, los hechos estan separados por "," asi los divide"
+				
+				#print (regla[:i]+'.')
+				if ParserHecho(regla[:i]+'.') and regla[i+1]=="-": #Chequeamos que el encabezado de la regla sea un hecho valido y que despues de los : haya un -
 
-# FALTA!!
+
+					 True
+				else:
+					return False
+		
+		for hecho in cuerporegla: #Ciclo para recorrer la lista que contiene el cuerpo de la regla.
+
+			#print("Hecho +. "+ hecho +" .")
+			if ParserHecho(hecho+".") == False: #Verificamos que cada hecho que esta en el cuerpo sea un hecho valido.
+				return False
+		return True	
+
+			
 
 
 
