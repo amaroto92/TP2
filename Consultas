@@ -1,0 +1,147 @@
+#### Consultas #########################################################################
+def Consultas():
+	print("Consultas")
+	print("Ingrese la consulta que desea realizar")
+	return Consultas_Aux()
+def Consultas_Aux():
+	consulta=raw_input("?- ")
+	if ScannerConsulta(consulta) and ParserConsulta(consulta): #Si pasa las etapas de Scanner y Parser correctamente, agrega el hecho a la BC.
+		#print ("consulta valida")
+		return verificarConsulta(consulta)
+	else:
+		print("La consulta presenta un error lexico o sintactico")
+		opcion=input("Presione 1 para realizar otra consulta o 2 para volver al menu: ")
+		if opcion==1:
+			return Consultas_Aux()
+		else:
+			print
+			return MenuAdministrativo()
+
+def ScannerConsulta(consulta):
+	for caracter in consulta:
+		if caracter in LexicoConsultas[:-2]:
+			True
+		else:
+			print("Error de scanner: "+caracter+" no es token valido")
+			return False
+	return True
+
+
+def ParserConsulta(consulta):
+	print(consulta)
+	banderaparentisis = False
+	if consulta[-1] == ')': #Que no termine con punto.
+		for i in range(0,len(consulta)):
+
+			if i==0 and (consulta[i].islower() == False): # Que empieze con minuscula.
+
+				print("Una consulta tiene que empezar con minuscula")
+				return False
+
+			elif consulta[i] == '(' :
+				banderaparentisis = True #Bandera para saber que tiene parentesis, este se tiene que cerrar 					y tiene que haber un alfa numerico despues del parentesis abierto.
+				if consulta[i+1].isalnum() == False:
+					print("Error despues del ( ")
+					return False
+				elif banderaparentisis == True:
+					if consulta[-1] !=')':
+						print("No se cerro parentesis")
+						return False
+
+			elif consulta[i] == ',':
+				if consulta[i+1].isalnum() ==False:
+				#Despues de una coma tiene que haber un alfanumerico.
+					print("Error despues de la ,")
+					return False
+
+		return True #Paso todas las pruebas del Parser correctamente.
+	else:
+		print ("La consulta debe terminar con )")
+
+def verificarConsulta(consulta):
+	if esigual(consulta):
+		opcion=input("Presione 1 para realizar otra consulta o 2 para volver al menu: ")
+		if opcion==1:
+			return Consultas_Aux()
+		else:
+			print
+			return MenuAdministrativo()
+	else:
+		for i in range(0,len(consulta)):
+			if consulta[i] == '(' :
+				predicado = consulta[:i]
+				for j in range(0,len(BaseConocimientos)):
+					for k in range(0,len(BaseConocimientos[j])):
+						if BaseConocimientos[j][k] == '(' :
+							predicadoBase = BaseConocimientos[j][:k]
+							if predicado == predicadoBase:
+								print("Hecho si existe")
+								for m in range(0,len(consulta)):
+									if consulta[m] == ',':
+										primerat = consulta[(i+1):m]
+										print(primerat)
+										if esvariable(primerat) == False:
+											print("hola")
+											for n in range(0,len(BaseConocimientos[j])):
+												if BaseConocimientos[j][n] == ',' :
+													primerathecho = BaseConocimientos[(j+1):n]
+													if esvariable(primerathecho) == True:
+														temp = primerat
+														primerat = primerathecho
+														print (temp + " = " + primerat)
+														
+														
+													
+																
+ 
+								print
+								opcion1=input("Presione 1 para realizar otra consulta o 2 para volver al menu: ")
+								if opcion1==1:
+									return Consultas_Aux()
+								else:
+									print
+									return MenuAdministrativo()
+							else:
+								j+1
+				print("Hecho no existe")
+				print
+				
+	
+			
+		opcion=input("Presione 1 para realizar otra consulta o 2 para volver al menu: ")
+		if opcion==1:
+			return Consultas_Aux()
+		else:
+			print
+			return MenuAdministrativo()								
+		return True #Paso todas las pruebas.
+	
+	
+		
+def esigual(consulta):
+	for k in range(0,len(BaseConocimientos)):
+		ultimo = len(BaseConocimientos[k])
+		if BaseConocimientos[k][(ultimo)-1] == '.' :
+			predicadoBase = BaseConocimientos[k][:(ultimo-1)]
+			#print (predicadoBase)
+			if consulta == predicadoBase:
+				print("YES")
+				print
+				return True #Paso todas las pruebas.
+		else:
+			k+1
+				
+	else:
+		return False
+
+def esvariable(dato):
+	if dato.islower() == True:
+		return True
+	else:
+		return False
+
+
+	
+	
+
+	
