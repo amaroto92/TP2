@@ -114,6 +114,7 @@ def esvariable(dato):
 	else: 
 		return True
 			
+			
 				
 
 Inicio()
