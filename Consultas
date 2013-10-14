@@ -1,8 +1,8 @@
 global BaseConocimientos
-BaseConocimientos=['perro(ruffo).','perro(ruffo,theo).','perro(theo,theo).','perro(theo).','grande(ruffo).','perro_grande(X):-perro(ruffo),grande(X).'] #Lista que contiene la BC y le agregamos los built-in predicates.
+BaseConocimientos=['perro(ruffo).','perro(ruffo,theo).','perro(theo,theo).','perro(theo).','grande(ruffo).','grande(pedro).','raro(lola)','perro_grande(X):-perro(ruffo),grande(X).'] #Lista que contiene la BC y le agregamos los built-in predicates.
 
 def Inicio():
-	consulta= raw_input(":::::")
+	consulta= raw_input("?-")
 	if BuscarUnificacion(HacerLista(consulta))==True:
 		print("YES")
 	else:
@@ -21,48 +21,46 @@ def HacerLista(consulta):
 	return ListaConsulta
 
 def BuscarUnificacion(Consulta):
+	bandera=0 ## cero si es NO y 1 si va a ser YES	
 	for i in range(0,len(BaseConocimientos)):
 		if EsRegla(BaseConocimientos[i])!=True:
-			bandera=0
-			for x in range(0,len(BaseConocimientos)):
-				if bandera==0 or bandera==1:
-					Conocimiento=HacerLista(BaseConocimientos[x])
-					if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]):
-						resultado=UnificacionArgumentos(Consulta[1],Conocimiento[1],len(Consulta[1]))
-						if resultado==1:
-							return True
-						elif resultado==2:
-							bandera=1
-						else:
-							bandera=0
-					##else:
-						##bandera=-1  ## por si los functores no son iguales
-			if bandera==0:
-				return False
-			elif bandera==1 or bandera==2:
-				return True
+			#print("es hecho lo q esta en BC")
+			if bandera==0 or bandera==1: ###
+				Conocimiento=HacerLista(BaseConocimientos[i])
+				if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]):
+					resultado=UnificacionArgumentos(Consulta[1],Conocimiento[1],len(Consulta[1]))
+					if resultado==1:
+						return True
+					elif resultado==2:
+						bandera=1
+					else:
+						bandera=0
+				##else:
+					##bandera=-1  ## por si los functores no son iguales
 		else:
-			print("si es regla")
+			#print("es una regla lo q esta en BC")
 			regla=BaseConocimientos[i]
+			#print(regla)
 			for j in range(0,len(regla)):
 				if (regla[j] == ':') and (regla[j+1] == '-'): 
-					parametros = regla[j+2:]
-					ListaRegla= HacerLista(regla[:j]+".")
-					return
-			print( parametros)
-			print(ListaRegla)
+					parametros = regla[j+2:] #Los parametros de predicado
+					ListaRegla= HacerLista(regla[:j]+".") #Functor con argumento en HacerLista
+			#print( parametros)
+			#print(ListaRegla)
 			if ListaRegla[0]==Consulta[0] and len(Consulta[1])==len(ListaRegla[1]):
 				###hay q unificar los parametros de la regla
-				parametroslista = parametros.split('),')
+				parametroslista = parametros.split('),') #Parametros separados en lista para revisar uno por uno
 				for k in range(0,len(parametroslista)-1):
 					parametroslista[k]+=")."
-				print (parametroslista)
 				for l in range(0,len(parametroslista)):
-					print(parametroslista[l])
+					#print(parametroslista[l])
 					if BuscarUnificacion(HacerLista(parametroslista[l])) == False:
 						return False
 				return True
-	return False
+	if bandera==0:
+		return False
+	elif bandera==1:
+		return True
 
 
 
@@ -85,7 +83,7 @@ def UnificacionArgumentos(argsconsulta, argshecho, cant_args):
 	bandera=0
 	bandera2=""
 	n = 0 
-	while (n<=((cant_args)-1)):
+	while (n<=((cant_args)-1)): ## las dos son variables para reglas
 		if esvariable(argsconsulta[n]) == False and esvariable(argshecho[n]) == True:
 			argshecho[n] = argsconsulta[n]
 			n+=1 
@@ -105,6 +103,7 @@ def UnificacionArgumentos(argsconsulta, argshecho, cant_args):
 		elif comando=="":
 			bandera=1
 		else:
+			##error
 			bandera=1
 	return bandera
 
@@ -113,7 +112,6 @@ def esvariable(dato):
 		return False 
 	else: 
 		return True
-			
 			
 				
 
