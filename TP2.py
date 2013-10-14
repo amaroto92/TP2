@@ -23,7 +23,7 @@ def MenuInicio():
 		print ("CONSULTAS NO ESTA HECHO TODAVIA")
 		return MenuInicio()
 	else:
-		print ("Valor ingresado es invalido, por favor elija 			una opcion")
+		print ("Valor ingresado es invalido, por favor elija una opcion")
 		print
 		return MenuInicio()
 
@@ -80,11 +80,13 @@ def IngresarHecho_Aux():
 			print
 			return MenuAdministrativo()
 
-# Funcion para validar el lexico del hecho:		
-
+# Funcion para validar el lexico del hecho:
+#Devuelve true si los caracteres de hecho se encuentran en la lista lexico y False si encuentra 1 que no.
+		
 def ScannerHecho(hecho):
 	for caracter in hecho:
-		if caracter.lower() in Lexico[:-2]:
+		if caracter.lower() in Lexico[:-2]: # No usamos los últimos 2 elementos de léxico porque esos son para reglas.
+
 			True
 		else:
 			print("Error de scanner: "+caracter+" no es token valido")
@@ -252,7 +254,7 @@ def remplaza2(lista):
        
 
 
-#### Mostrar Hechos ###################################################################
+#### Mostrar Hechos y Reglas ###################################################################
 def MostrarBaseConocimiento():
 	print
 	print("Base de Conocimientos")
