@@ -19,8 +19,7 @@ def MenuInicio():
 		print
 		return MenuAdministrativo()
 	elif opcion==2:
-		print
-		print 
+		print("ingrese: menu  para regresar al menu principal")
 		return Consultas()
 	else:
 		print ("Valor ingresado es invalido, por favor elija una opcion")
@@ -298,232 +297,134 @@ def MostrarBaseConocimiento():
 
 #### Consultas #########################################################################
 def Consultas():
-
 	consulta= raw_input("?-")
-
-	if BuscarUnificacion(HacerLista(consulta))==True:
-
+	if consulta.lower()=="menu":
+		print
+		return MenuInicio()
+	elif BuscarUnificacion(HacerLista(consulta))==True:
 		print("YES")
-
 	else:
-
 		print("NO")
-
 	return Consultas()
 
-
-
 def HacerLista(consulta):
-
-	ListaConsulta=[]
-
-	for i in range(0,len(consulta)): 
-
-		if consulta[i] == '(' : 
-
-			functor = consulta[:i]
-
-			predicado= consulta[i+1:-2]
-
-	parametros=predicado.split(",")
-
-	ListaConsulta+=[functor]
-
-	ListaConsulta+=[parametros]
-
-	return ListaConsulta
-
-
+	if EsBuiltIn(consulta)==4:
+		ListaConsulta=[]
+		for i in range(0,len(consulta)): 
+			if consulta[i] == '(' : 
+				functor = consulta[:i]
+				predicado= consulta[i+1:-2]
+		parametros=predicado.split(",")
+		ListaConsulta+=[functor]
+		ListaConsulta+=[parametros]
+		return ListaConsulta
+	else:
+		return consulta
 
 def BuscarUnificacion(Consulta):
-
 	bandera=0 ## cero si es NO y 1 si va a ser YES	
-
 	for i in range(0,len(BaseConocimientos)):
-
-		if EsRegla(BaseConocimientos[i])!=True:
-
-			#print("es hecho lo q esta en BC")
-
-			if bandera==0 or bandera==1: ###
-
-				Conocimiento=HacerLista(BaseConocimientos[i])
-
-				if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]):
-
-					resultado=UnificacionArgumentos(Consulta[1],Conocimiento[1],len(Consulta[1]))
-
-					if resultado==1:
-
-						return True
-
-					elif resultado==2:
-
-						bandera=1
-
-					else:
-
-						bandera=0
-
-				##else:
-
-					##bandera=-1  ## por si los functores no son iguales
-
-		else:
-
-			#print("es una regla lo q esta en BC")
-
+		if EsBuiltIn(BaseConocimientos[i])!=4:
+			BuiltIn=EsBuiltIn(BaseConocimientos[i])
+			if BuiltIn==1 and Consulta=="nl":
+				print
+				bandera=1
+			elif BuiltIn==2 and Consulta=="fail":
+				return False
+			elif BuiltIn==3 and Consulta[:6]=="write(":
+				Escribir=Consulta[6:-1]
+				if EsVariable(Escribir)==False:
+					print(Escribir)
+					bandera=1
+		elif EsRegla(BaseConocimientos[i])!=True and EsBuiltIn(BaseConocimientos[i])==4:
+			Conocimiento=HacerLista(BaseConocimientos[i])
+			if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]):
+				resultado=UnificacionArgumentos(Consulta[1],Conocimiento[1],len(Consulta[1]))
+				if resultado==1:
+					return True
+				elif resultado==2:
+					bandera=1
+				else:
+					bandera=0
+		elif EsRegla(BaseConocimientos[i])==True and EsBuiltIn(BaseConocimientos[i])==4:
 			regla=BaseConocimientos[i]
-
-			#print(regla)
-
 			for j in range(0,len(regla)):
-
 				if (regla[j] == ':') and (regla[j+1] == '-'): 
-
 					parametros = regla[j+2:] #Los parametros de predicado
-
 					ListaRegla= HacerLista(regla[:j]+".") #Functor con argumento en HacerLista
-
-			#print( parametros)
-
-			#print(ListaRegla)
-
 			if ListaRegla[0]==Consulta[0] and len(Consulta[1])==len(ListaRegla[1]):
-
-				###hay q unificar los parametros de la regla
-
-				parametroslista = parametros.split('),') #Parametros separados en lista para revisar uno por uno
-
-				for k in range(0,len(parametroslista)-1):
-
-					parametroslista[k]+=")."
-
+				###hay q unificar los parametros de la regla###############################################################
+				parametroslista = parametros[:-2].split('),') #Parametros separados en lista para revisar uno por uno
+				for k in range(0,len(parametroslista)):
+					if parametroslista[k][:3]=="nl,":
+						parametroslista[k]+=")."
+						parametroslista=parametroslista[:k]+['nl']+[parametroslista[k][3:]]
+					elif parametroslista[k][:5]=="fail,":
+						parametroslista[k]+=")."
+						parametroslista=parametroslista[:k]+['fail']+[parametroslista[k][5:]]		
+					elif parametroslista[k][:6]=="write(":
+						parametroslista[k]+=")"
+					else:
+						parametroslista[k]+=")."
 				for l in range(0,len(parametroslista)):
-
-					#print(parametroslista[l])
-
 					if BuscarUnificacion(HacerLista(parametroslista[l])) == False:
-
 						return False
-
 				return True
-
 	if bandera==0:
-
 		return False
-
 	elif bandera==1:
-
 		return True
-
-
-
-
-
-
 
 def EsRegla(Consulta):
-
 	for i in range(0, len(Consulta)):
-
 		if Consulta[i] == ':' and Consulta[i+1] == '-':
-
 			return True
-
 	return False
 
-
-
-##
-
 def EsBuiltIn(Consulta):
-
 	if Consulta=="nl":
-
-		print
-
-		return True
-
+		return 1
 	elif Consulta=="fail":
-
-		return False
-
-	##else
-
-
+		return 2
+	elif Consulta[:6]=="write(" and Consulta[-1]==")":
+		return 3
+	else:
+		return 4
 
 def UnificacionArgumentos(argsconsulta, argshecho, cant_args):
-
 	bandera=0
-
 	bandera2=""
-
 	n = 0 
-
-	while (n<=((cant_args)-1)): ## las dos son variables para reglas
-
-		if esvariable(argsconsulta[n]) == False and esvariable(argshecho[n]) == True:
-
+	while (n<=((cant_args)-1)): ## las dos son variables para reglas, y las unbound ##############
+		if EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == True:
 			argshecho[n] = argsconsulta[n]
-
 			n+=1 
-
-		elif esvariable(argsconsulta[n]) == False and esvariable(argshecho[n]) == False:
-
+		elif EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == False:
 			if argsconsulta[n] == argshecho[n]:
-
 				n+=1
-
 				bandera=1
-
 			else:	
-
 				return 0
-
-		elif esvariable(argsconsulta[n]) == True and esvariable(argshecho[n])== False:
-
+		elif EsVariable(argsconsulta[n]) == True and EsVariable(argshecho[n])== False:
 			bandera2=argsconsulta[n]+" = "+argshecho[n]
-
 			n+=1
-
 	if bandera2!="":
-
 		comando=raw_input(bandera2)
-
 		if comando==";":
-
 			bandera=2
-
 		elif comando=="":
-
 			bandera=1
-
 		else:
-
-			##error
-
 			bandera=1
-
 	return bandera
 
-
-
-def esvariable(dato):
-
+def EsVariable(dato):
 	if dato.islower() == True:
-
 		return False 
-
 	else: 
-
 		return True
-
 			
-
 				
-
-
 
 
 
