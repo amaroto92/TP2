@@ -297,92 +297,98 @@ def MostrarBaseConocimiento():
 
 #### Consultas #########################################################################
 def Consultas():
-	consulta= raw_input("?-")
-	if consulta.lower()=="menu":
+	consulta= raw_input("?-") #recibe una consulta
+	if consulta.lower()=="menu": #verifica si desea volver al menu
 		print
-		return MenuInicio()
-	elif BuscarUnificacion(HacerLista(consulta))==True:
-		print("YES")
+		return MenuInicio() #si ingresa menu, las consultas se detienen y se regresa al menu principal
+	elif BuscarUnificacion(HacerLista(consulta))==True: #transforma la consulta en modo Lista y la trata de unificar
+		print("YES") # si hubo unificacion total, se imprime YES
 	else:
-		print("NO")
-	return Consultas()
+		print("NO") # de lo contrario se imprime NO
+	return Consultas() # al dar el resultado de una consulta (Yes, No) se reinicia para otra nueva consulta
 
-def HacerLista(consulta):
-	if EsBuiltIn(consulta)==4:
-		ListaConsulta=[]
-		for i in range(0,len(consulta)): 
+def HacerLista(consulta): #Funcion que transforma en lista una consulta: A(B) -> [A,[b1,b2,b3]]
+	if EsBuiltIn(consulta)==4: # primero verifica que la consulta no es un built in function. 4 significa que no lo es.
+		ListaConsulta=[] 
+		for i in range(0,len(consulta)): # se recorre la consulta para separar lo que este antes de los parentesis.
 			if consulta[i] == '(' : 
 				functor = consulta[:i]
 				predicado= consulta[i+1:-2]
-		parametros=predicado.split(",")
+		parametros=predicado.split(",") # se separan los parametros del predicado.
 		ListaConsulta+=[functor]
-		ListaConsulta+=[parametros]
+		ListaConsulta+=[parametros] # y se ingresan en la lista.
 		return ListaConsulta
 	else:
 		return consulta
 
-def BuscarUnificacion(Consulta):
-	bandera=0 ## cero si es NO y 1 si va a ser YES	
-	for i in range(0,len(BaseConocimientos)):
-		if EsBuiltIn(BaseConocimientos[i])!=4:
+def BuscarUnificacion(Consulta): #Funcion que trata de unificar las consultas.
+	bandera=0 # utilizamos una bandera, 0 para retornar NO y 1 para retornar YES al final de la unificacion.
+	for i in range(0,len(BaseConocimientos)): # se recorre toda la Base de Conocimientos para unificar con todas las posibles.
+		if EsBuiltIn(BaseConocimientos[i])!=4: # si la BC muestra un BuiltIn, la trata de unificar.
 			BuiltIn=EsBuiltIn(BaseConocimientos[i])
-			if BuiltIn==1 and Consulta=="nl":
+			if BuiltIn==1 and Consulta=="nl": # si unifica con nl, imprime una linea vacia.
 				print
 				bandera=1
-			elif BuiltIn==2 and Consulta=="fail":
+			elif BuiltIn==2 and Consulta=="fail": # si unifica con fail, termina de unificar y continua con la BC.
 				return False
-			elif BuiltIn==3 and Consulta[:6]=="write(":
+			elif BuiltIn==3 and Consulta[:6]=="write(": # verifica si es write.
 				Escribir=Consulta[6:-1]
-				if EsVariable(Escribir)==False:
+				if EsVariable(Escribir)==False: # si lo que esta dentro del write es constante, la escribe.
 					print(Escribir)
 					bandera=1
-		elif EsRegla(BaseConocimientos[i])!=True and EsBuiltIn(BaseConocimientos[i])==4:
+		elif EsRegla(BaseConocimientos[i])!=True and EsBuiltIn(BaseConocimientos[i])==4: # trata de unificar con Hechos.
 			Conocimiento=HacerLista(BaseConocimientos[i])
-			if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]):
+			if Consulta[0]==Conocimiento[0] and len(Consulta[1])==len(Conocimiento[1]): # si el functor y la cantidad de parametros son iguales, trata de unificar todos los parametros..
 				resultado=UnificacionArgumentos(Consulta[1],Conocimiento[1],len(Consulta[1]))
-				if resultado==1:
+				if resultado==1: # si la unificacion de parametros retorna 1, es que fue correcto y retorna YES.
 					return True
-				elif resultado==2:
+				elif resultado==2: # si es 2, significa que se pidio backtracking con ;.
 					bandera=1
 				else:
-					bandera=0
-		elif EsRegla(BaseConocimientos[i])==True and EsBuiltIn(BaseConocimientos[i])==4:
+					bandera=0 # cero si no unifico.
+		elif EsRegla(BaseConocimientos[i])==True and EsBuiltIn(BaseConocimientos[i])==4: # Trata de unificar con reglas de la BC.
 			regla=BaseConocimientos[i]
-			for j in range(0,len(regla)):
+			for j in range(0,len(regla)): # separa el predicado de la regla.
 				if (regla[j] == ':') and (regla[j+1] == '-'): 
 					parametros = regla[j+2:] #Los parametros de predicado
 					ListaRegla= HacerLista(regla[:j]+".") #Functor con argumento en HacerLista
-			if ListaRegla[0]==Consulta[0] and len(Consulta[1])==len(ListaRegla[1]):
+			if ListaRegla[0]==Consulta[0] and len(Consulta[1])==len(ListaRegla[1]): # si la regla y la cantidad de argumentos son iguales, trata de unificar el predicado.
 				###hay q unificar los parametros de la regla###############################################################
 				parametroslista = parametros[:-2].split('),') #Parametros separados en lista para revisar uno por uno
-				for k in range(0,len(parametroslista)):
-					if parametroslista[k][:3]=="nl,":
+				for k in range(0,len(parametroslista)): # revisamos q builtIns sean considerados como parametros.
+					if parametroslista[k][:3]=="nl,": # para ln, ya que no debe tener parentesis.
 						parametroslista[k]+=")."
 						parametroslista=parametroslista[:k]+['nl']+[parametroslista[k][3:]]
-					elif parametroslista[k][:5]=="fail,":
+					elif parametroslista[k][:5]=="fail,": # para fail, ya que no debe tener parentesis.
 						parametroslista[k]+=")."
-						parametroslista=parametroslista[:k]+['fail']+[parametroslista[k][5:]]		
-					elif parametroslista[k][:6]=="write(":
+						parametroslista=parametroslista[:k]+['fail']+[parametroslista[k][5:]]
+					elif parametroslista[k][:2]=="_,": # para los unbound, ya que solo debe ser un guion bajo.
+						parametroslista[k]+=")."
+						parametroslista=parametroslista[:k]+['_']+[parametroslista[k][5:]]			
+					elif parametroslista[k][:6]=="write(": #para los write, ya que no termina con punto.
 						parametroslista[k]+=")"
 					else:
 						parametroslista[k]+=")."
-				for l in range(0,len(parametroslista)):
-					if BuscarUnificacion(HacerLista(parametroslista[l])) == False:
-						return False
+				for l in range(0,len(parametroslista)): # recorremos los parametros y unificamos.
+					if parametroslista[l]!="_": # si no es unbound, debe tratar la unificacion.
+						if BuscarUnificacion(HacerLista(parametroslista[l])) == False: # si no unifica algun parametro, este retorna falso.
+							return False
+					else:
+						True # si es unbound, unifica de una vez.
 				return True
-	if bandera==0:
+	if bandera==0: # si el resultado final de la bandera es cero, imprime NO en consola.
 		return False
-	elif bandera==1:
+	elif bandera==1: # imprime YES de lo contrario.
 		return True
 
-def EsRegla(Consulta):
-	for i in range(0, len(Consulta)):
+def EsRegla(Consulta): #Funcion para verificar si es regla.
+	for i in range(0, len(Consulta)): # recorre lo consultado para verificar si contiene un :-
 		if Consulta[i] == ':' and Consulta[i+1] == '-':
-			return True
-	return False
+			return True # si los contiene, es regla.
+	return False # de lo contrario, es un hecho.
 
-def EsBuiltIn(Consulta):
-	if Consulta=="nl":
+def EsBuiltIn(Consulta): #Funcion para verificar si es Built In Function.
+	if Consulta=="nl": 
 		return 1
 	elif Consulta=="fail":
 		return 2
@@ -391,41 +397,41 @@ def EsBuiltIn(Consulta):
 	else:
 		return 4
 
-def UnificacionArgumentos(argsconsulta, argshecho, cant_args):
-	bandera=0
-	bandera2=""
+def UnificacionArgumentos(argsconsulta, argshecho, cant_args): #Funcion para unificar los parametros.
+	bandera=0 #utilizamos esta bandera para retornarla y saber valor de unificacion.
+	ValorVariable="" #utilizamos esta variable para guardar el valor del backtracking.
 	n = 0 
-	while (n<=((cant_args)-1)): ## las dos son variables para reglas, y las unbound ##############
-		if EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == True:
+	while (n<=((cant_args)-1)): #recorremos todos los parametros unificandolos.
+		if argsconsulta[n]=="_": # si el parametro es unbound, unifica.
+			n+=1
+		elif EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == True: # si la consulta es una constante, y la BC es una Variable, unifica.
 			argshecho[n] = argsconsulta[n]
 			n+=1 
-		elif EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == False:
+		elif EsVariable(argsconsulta[n]) == False and EsVariable(argshecho[n]) == False: # si la consulta es un hecho, y la BC es un constante, unifica.
 			if argsconsulta[n] == argshecho[n]:
 				n+=1
-				bandera=1
+				bandera=1 #indica que si  unifico.
 			else:	
 				return 0
-		elif EsVariable(argsconsulta[n]) == True and EsVariable(argshecho[n])== False:
-			bandera2=argsconsulta[n]+" = "+argshecho[n]
+		elif EsVariable(argsconsulta[n]) == True and EsVariable(argshecho[n])== False: # si la consulta es una variable, y la BC es una constante, unifica.
+			ValorVariable=argsconsulta[n]+" = "+argshecho[n] # anotamos cual es el valor para backtracking.
 			n+=1
-	if bandera2!="":
-		comando=raw_input(bandera2)
+	if ValorVariable!="": #Verificamos si hay valor para hacer backtracking.
+		comando=raw_input(ValorVariable) # imprimimos valor, y se pide ; si se desea backtracking.
 		if comando==";":
-			bandera=2
+			bandera=2 # 2 para indicar que si se desea backtracking.
 		elif comando=="":
-			bandera=1
+			bandera=1 # 1 si solo desea continuar con la siguiente consulta.
 		else:
 			bandera=1
-	return bandera
+	return bandera # se retorna el valor de la unificacion de los parametros.
 
-def EsVariable(dato):
-	if dato.islower() == True:
+def EsVariable(dato): #Funcion para indicar si un dato es variable o constante.
+	if dato.islower() == True: #si todo es minuscula, es constante.
 		return False 
 	else: 
 		return True
 			
-				
-
-
+			
 
 MenuInicio()
