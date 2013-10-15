@@ -298,14 +298,19 @@ def MostrarBaseConocimiento():
 #### Consultas #########################################################################
 def Consultas():
 	consulta= raw_input("?-") #recibe una consulta
-	if consulta.lower()=="menu": #verifica si desea volver al menu
+	if consulta=="": #si se recibe una consulta vacia, se reinicia Consultas.
+		return Consultas()
+	elif consulta.lower()=="menu": #verifica si desea volver al menu
 		print
 		return MenuInicio() #si ingresa menu, las consultas se detienen y se regresa al menu principal
-	elif BuscarUnificacion(HacerLista(consulta))==True: #transforma la consulta en modo Lista y la trata de unificar
-		print("YES") # si hubo unificacion total, se imprime YES
+	elif ScannerHecho(consulta)==True and ParserHecho(consulta)==True: #si la consulta no termina en punto, se da el error y se reinicia consulta.
+		if BuscarUnificacion(HacerLista(consulta))==True: #transforma la consulta en modo Lista y la trata de unificar
+			print("YES") # si hubo unificacion total, se imprime YES
+		else:
+			print("NO") # de lo contrario se imprime NO
+		return Consultas() # al dar el resultado de una consulta (Yes, No) se reinicia para otra nueva consulta
 	else:
-		print("NO") # de lo contrario se imprime NO
-	return Consultas() # al dar el resultado de una consulta (Yes, No) se reinicia para otra nueva consulta
+		return Consultas()
 
 def HacerLista(consulta): #Funcion que transforma en lista una consulta: A(B) -> [A,[b1,b2,b3]]
 	if EsBuiltIn(consulta)==4: # primero verifica que la consulta no es un built in function. 4 significa que no lo es.
