@@ -146,7 +146,7 @@ def IngresarRegla():
 
 def IngresarRegla_Aux():
 	regla=raw_input(": ")
-	if ScannerRegla(regla) and ParserRegla(regla): #Si pasa las etapas de Scanner y Parser correctamente, agrega el hecho a la BC.
+	if ScannerRegla(regla) and ParserRegla(regla) and VerificarAridad(regla): #Si pasa las etapas de Scanner y Parser correctamente, agrega el hecho a la BC.
 
 		BaseConocimientos.append(regla) #append lo agrega al final de 							la lista.
 		print("Regla ingresada")
@@ -254,11 +254,35 @@ def remplaza2(lista):
 #### Verificar aridad de funciones que tienen el mismo nombre ######
 
 def VerificarAridad(regla):
+	encabezadobase = ""
+	encabezadoregla = ""
+	particionregla=""
+	particionbase=""
+
+	for caracter in range(0,len(regla)):
+		if regla[caracter] == ':':
+			encabezadoregla = regla[:caracter]
+			particionregla = encabezadoregla.partition("(") #Separa el string en la primera ocurrencia del parametro, y retorna una tupla de 3 elementos: la parte antes del separador, el separador mismo, y lo que esta despues del separador.
+
+			
+
 	
 	for i in range(0,len(BaseConocimientos)):
+		particionbase =  BaseConocimientos[i].partition("(") #Separa el string en la primera ocurrencia del parametro, y retorna una tupla de 3 elementos: la parte antes del separador, el separador mismo, y lo que esta despues del separador.
+
+		
 		if BaseConocimientos[i] == regla:
-			print ("Regla ya existe")
+			print ("Regla ya existe en la Base")
 			return False
+		elif particionbase[0] == particionregla[0]:
+			subparticionregla=particionregla[2].partition(")")
+			subparticionbase=particionbase[2].partition(")")
+			if len(subparticionbase[0]) == len(subparticionregla[0]):
+				print ("Regla ya existe con la misma aridad")
+				return False
+	
+	return True
+
 
 
 
